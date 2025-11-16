@@ -16,7 +16,7 @@ TRANSLATIONS = {
     "Logged in as {user}.": "{user}(으)로 로그인되었습니다.",
     "You have logged out.": "로그아웃되었습니다.",
     "Your preferences have been updated.": "환경설정이 업데이트되었습니다.",
-    "LDAP-authenticated user credentials cannot be changed within NetBox.": "LDAP 인증 사용자 자격 증명은 NetBox 내에서 변경할 수 없습니다.",
+    "LDAP-authenticated user credentials cannot be changed within NetBox.": "LDAP인증자격증명은 NetBox내 변경불가.",
     "Your password has been changed successfully.": "비밀번호가 성공적으로 변경되었습니다.",
     "Login": "로그인",
     "Logout": "로그아웃",
@@ -86,7 +86,6 @@ TRANSLATIONS = {
     "Deprecated": "더 이상 사용 안 함",
     "Offline": "오프라인",
     "Failed": "실패",
-    "Provisioning": "프로비저닝 중",
     "Deprovisioning": "프로비저닝 해제 중",
     "Connected": "연결됨",
     "Pending": "대기 중",
@@ -230,7 +229,6 @@ TRANSLATIONS = {
     "Contact Group": "연락처 그룹",
     "Contact Role": "연락처 역할",
     "User": "사용자",
-    "Group": "그룹",
     "Permission": "권한",
     "Token": "토큰",
     "Authentication": "인증",
@@ -302,7 +300,7 @@ TRANSLATIONS = {
     "Height": "높이",
     "Width": "너비",
     "Depth": "깊이",
-    "Weight": "무게",
+   
     "Distance": "거리",
     "Distance unit": "거리 단위",
     "Length": "길이",
@@ -361,6 +359,7 @@ TRANSLATIONS = {
     "Decommissioned": "폐기됨",
 }
 
+
 def update_po_file():
     """Update the django.po file with Korean translations"""
     po_file = "/Users/josephpaik/Documents/GitHub/netbox251022/netbox/translations/ko/LC_MESSAGES/django.po"
@@ -409,7 +408,8 @@ def update_po_file():
     print(f"Total translations in dictionary: {len(TRANSLATIONS)}")
     return translations_added
 
+
 if __name__ == '__main__':
     count = update_po_file()
-    print(f"\n✓ Successfully updated Korean translations!")
+    print("\n✓ Successfully updated Korean translations!")
     print(f"✓ {count} strings translated")
