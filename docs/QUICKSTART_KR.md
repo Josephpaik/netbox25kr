@@ -34,7 +34,7 @@ sudo systemctl enable postgresql redis-server
 # PostgreSQL 데이터베이스 생성
 sudo -u postgres psql << EOF
 CREATE DATABASE netbox;
-CREATE USER netbox WITH PASSWORD 'netbox123';
+CREATE USER netbox WITH PASSWORD 'NetBox_DB_2024!';
 ALTER DATABASE netbox OWNER TO netbox;
 GRANT ALL PRIVILEGES ON DATABASE netbox TO netbox;
 EOF
@@ -42,6 +42,10 @@ EOF
 # Redis 확인
 redis-cli ping  # 응답: PONG
 ```
+
+> **⚠️ 비밀번호 구분**:
+> - `NetBox_DB_2024!` = **데이터베이스 연결용** 비밀번호 (configuration.py에 저장)
+> - 웹 로그인 비밀번호는 아래 5단계에서 별도로 설정합니다
 
 ### 3. NetBox 다운로드 및 설치 (3분)
 
@@ -79,7 +83,7 @@ ALLOWED_HOSTS = ['*']
 DATABASE = {
     'NAME': 'netbox',
     'USER': 'netbox',
-    'PASSWORD': 'netbox123',
+    'PASSWORD': 'NetBox_DB_2024!',  # 2단계에서 설정한 DB 비밀번호
     'HOST': 'localhost',
     'PORT': '',
     'CONN_MAX_AGE': 300,
@@ -116,14 +120,20 @@ python3 manage.py migrate
 python3 manage.py createsuperuser
 # Username: admin
 # Email: admin@example.com
-# Password: admin123 (입력 시 보이지 않음)
+# Password: Admin2024!Pass (입력 시 보이지 않음 - 10자 이상)
+# Password (again): Admin2024!Pass
 
 # 또는 비대화형으로:
-# DJANGO_SUPERUSER_PASSWORD=admin123 python3 manage.py createsuperuser --noinput --username admin --email admin@example.com
+# DJANGO_SUPERUSER_PASSWORD='Admin2024!Pass' python3 manage.py createsuperuser --noinput --username admin --email admin@example.com
 
 # 정적 파일 수집
 python3 manage.py collectstatic --noinput
 ```
+
+> **⚠️ 비밀번호 보안 주의**:
+> - `Admin2024!Pass` = **웹 로그인용** 비밀번호 (최소 10자 이상)
+> - DB 비밀번호(`NetBox_DB_2024!`)와 다릅니다
+> - 실제 운영 환경에서는 더 강력한 비밀번호를 사용하세요
 
 ### 6. 한국어 번역 컴파일 ⭐
 
@@ -150,13 +160,17 @@ python3 manage.py runserver 0.0.0.0:8000
 ## 한글 UI로 변경하기
 
 1. **브라우저로 접속**: http://localhost:8000 (또는 서버 IP:8000)
-2. **로그인**: admin / admin123
+2. **로그인**:
+   - Username: `admin`
+   - Password: `Admin2024!Pass` (웹 로그인 비밀번호)
 3. **사용자 메뉴 클릭** (오른쪽 상단)
 4. **Preferences** 선택
 5. **Language**: `Korean (한국어)` 선택
 6. **Update** 클릭 후 **페이지 새로고침 (F5)**
 
 **완료!** 🎉 NetBox가 한글로 표시됩니다!
+
+> **주의**: 데이터베이스 비밀번호(`NetBox_DB_2024!`)가 아닌 웹 로그인 비밀번호를 사용하세요.
 
 ## 첫 데이터 입력해보기
 

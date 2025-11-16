@@ -102,15 +102,28 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# 3. 데이터베이스 생성
-sudo -u postgres createdb netbox
-sudo -u postgres createuser netbox
+# 3. 데이터베이스 생성 (비밀번호: NetBox_DB_2024!)
+sudo -u postgres psql << EOF
+CREATE DATABASE netbox;
+CREATE USER netbox WITH PASSWORD 'NetBox_DB_2024!';
+ALTER DATABASE netbox OWNER TO netbox;
+GRANT ALL PRIVILEGES ON DATABASE netbox TO netbox;
+EOF
 
 # 4. 설정 및 초기화
 cp netbox/configuration_example.py netbox/configuration.py
-# configuration.py 편집 (DATABASE, SECRET_KEY 등)
+# configuration.py 편집:
+# - DATABASE['PASSWORD'] = 'NetBox_DB_2024!'
+# - SECRET_KEY 생성 및 설정
+# - ALLOWED_HOSTS 설정
+
 python3 manage.py migrate
+
+# 슈퍼유저 생성 (웹 로그인용 - 비밀번호: Admin2024!Pass)
 python3 manage.py createsuperuser
+# Username: admin
+# Password: Admin2024!Pass (10자 이상)
+
 python3 manage.py collectstatic --noinput
 
 # 5. 한국어 번역 컴파일 ⭐
@@ -120,7 +133,11 @@ python3 manage.py compilemessages -l ko
 python3 manage.py runserver 0.0.0.0:8000
 ```
 
-**브라우저에서**: http://localhost:8000 → 로그인 → Preferences → Language: Korean
+**브라우저에서**: http://localhost:8000 → 로그인 (admin / Admin2024!Pass) → Preferences → Language: Korean
+
+> **⚠️ 비밀번호 구분**:
+> - **DB 비밀번호** (`NetBox_DB_2024!`): PostgreSQL 연결용 (configuration.py에 저장)
+> - **웹 로그인 비밀번호** (`Admin2024!Pass`): NetBox 웹 UI 로그인용 (10자 이상 권장)
 
 자세한 내용은 [한글 빠른 시작 가이드](docs/QUICKSTART_KR.md)를 참조하세요.
 

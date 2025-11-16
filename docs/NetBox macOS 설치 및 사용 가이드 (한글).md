@@ -100,8 +100,8 @@ psql postgres
 -- NetBox용 데이터베이스 생성
 CREATE DATABASE netbox;
 
--- NetBox용 사용자 생성 (비밀번호는 원하는 것으로 변경하세요)
-CREATE USER netbox WITH PASSWORD 'netbox123';
+-- NetBox용 사용자 생성 (⚠️ 보안: 실제 환경에서는 강력한 비밀번호 사용 필수!)
+CREATE USER netbox WITH PASSWORD 'NetBox_DB_2024!';
 
 -- 권한 부여
 ALTER DATABASE netbox OWNER TO netbox;
@@ -110,6 +110,11 @@ GRANT ALL PRIVILEGES ON DATABASE netbox TO netbox;
 -- 종료
 \q
 ```
+
+> **⚠️ 보안 주의사항**:
+> - `NetBox_DB_2024!`는 **데이터베이스 연결용 비밀번호**입니다
+> - 실제 운영 환경에서는 더 복잡한 비밀번호를 사용하세요
+> - 이 비밀번호는 `configuration.py` 파일에 저장됩니다 (웹 로그인 비밀번호와 다름)
 
 ### 2.3 Redis 설치 및 시작
 
@@ -221,7 +226,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'netbox',
         'USER': 'netbox',
-        'PASSWORD': 'netbox123',  # 2.2단계에서 설정한 비밀번호
+        'PASSWORD': 'NetBox_DB_2024!',  # 2.2단계에서 설정한 데이터베이스 비밀번호
         'HOST': 'localhost',
         'PORT': '',
         'CONN_MAX_AGE': 300,
@@ -280,12 +285,16 @@ python3 manage.py createsuperuser
 # 프롬프트에 따라 입력:
 # Username: admin
 # Email address: admin@example.com
-# Password: admin123  (입력 시 화면에 표시되지 않음)
-# Password (again): admin123
+# Password: Admin2024!Pass  (입력 시 화면에 표시되지 않음 - 10자 이상)
+# Password (again): Admin2024!Pass
 # Superuser created successfully.
 ```
 
-> **보안 주의**: 실제 운영 환경에서는 강력한 비밀번호를 사용하세요!
+> **⚠️ 보안 주의사항**:
+> - `Admin2024!Pass`는 **웹 로그인용 비밀번호**입니다 (데이터베이스 비밀번호와 다름)
+> - 최소 10자 이상, 영문 대소문자, 숫자, 특수문자 조합 권장
+> - 실제 운영 환경에서는 더 복잡하고 추측하기 어려운 비밀번호를 사용하세요
+> - 비밀번호는 Django의 해시 알고리즘으로 암호화되어 데이터베이스에 저장됩니다
 ### 5.3 정적 파일 수집
 
 ```bash
@@ -437,10 +446,12 @@ python3 manage.py runserver
 
 1. **URL**: `http://localhost:8000`
 2. **Username**: `admin` (5.2단계에서 생성한 계정)
-3. **Password**: `admin123`
+3. **Password**: `Admin2024!Pass` (5.2단계에서 설정한 웹 로그인 비밀번호)
 4. **"Log In" 버튼 클릭**
 
 로그인 후 NetBox 대시보드가 나타납니다.
+
+> **참고**: 데이터베이스 비밀번호(`NetBox_DB_2024!`)가 아닌 웹 로그인 비밀번호를 사용해야 합니다.
 
 ---
 
@@ -1160,11 +1171,13 @@ sudo -u postgres psql
 
 ```sql
 CREATE DATABASE netbox;
-CREATE USER netbox WITH PASSWORD 'netbox123';
+CREATE USER netbox WITH PASSWORD 'NetBox_DB_2024!';
 ALTER DATABASE netbox OWNER TO netbox;
 GRANT ALL PRIVILEGES ON DATABASE netbox TO netbox;
 \q
 ```
+
+> **참고**: 데이터베이스 비밀번호는 `configuration.py`에서 설정해야 합니다.
 
 ### Redis 설정
 
