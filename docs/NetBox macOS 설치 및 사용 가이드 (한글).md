@@ -101,7 +101,7 @@ psql postgres
 CREATE DATABASE netbox;
 
 -- NetBox용 사용자 생성 (⚠️ 보안: 실제 환경에서는 강력한 비밀번호 사용 필수!)
-CREATE USER netbox WITH PASSWORD 'NetBox_DB_2024!';
+CREATE USER netbox WITH PASSWORD 'NetBox_DB_2024!';  <- 기존 DB사용자정보: netbox / Netbox25&
 
 -- 권한 부여
 ALTER DATABASE netbox OWNER TO netbox;
