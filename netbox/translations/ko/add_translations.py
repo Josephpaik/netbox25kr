@@ -86,7 +86,6 @@ TRANSLATIONS = {
     "Deprecated": "더 이상 사용 안 함",
     "Offline": "오프라인",
     "Failed": "실패",
-    "Provisioning": "프로비저닝 중",
     "Deprovisioning": "프로비저닝 해제 중",
     "Connected": "연결됨",
     "Pending": "대기 중",
