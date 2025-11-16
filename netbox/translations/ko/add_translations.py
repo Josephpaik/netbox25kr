@@ -300,7 +300,7 @@ TRANSLATIONS = {
     "Height": "높이",
     "Width": "너비",
     "Depth": "깊이",
-   
+
     "Distance": "거리",
     "Distance unit": "거리 단위",
     "Length": "길이",
