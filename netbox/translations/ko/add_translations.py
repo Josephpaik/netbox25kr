@@ -229,7 +229,6 @@ TRANSLATIONS = {
     "Contact Group": "연락처 그룹",
     "Contact Role": "연락처 역할",
     "User": "사용자",
-    "Group": "그룹",
     "Permission": "권한",
     "Token": "토큰",
     "Authentication": "인증",
