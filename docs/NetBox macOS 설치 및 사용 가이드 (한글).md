@@ -1,5 +1,7 @@
-# NetBox macOS 설치 및 사용 가이드 (한글)
-MACOS_INSTALLATION_TUTORIAL_KR.md  2025.10.23
+# NetBox 설치 및 사용 가이드 (한글)
+INSTALLATION_GUIDE_KR.md  2024.11.16
+
+> **참고**: 이 가이드는 macOS 및 Linux(Ubuntu/Debian) 환경에서 NetBox를 설치하는 방법을 안내합니다.
 ## 목차
 - [소개](#소개)
 - [시스템 요구사항](#시스템-요구사항)
@@ -340,6 +342,90 @@ http://localhost:8000
 ```
 
 **로그인 화면이 나타나면 성공!** 🎉
+
+---
+
+## 7단계: 한국어 UI 활성화
+
+NetBox를 한국어로 사용하려면 한국어 번역 파일을 컴파일하고 언어 설정을 변경해야 합니다.
+
+### 7.1 한국어 번역 파일 확인
+
+```bash
+# NetBox 번역 파일 디렉토리로 이동
+cd ~/Documents/netbox/netbox/translations/ko/LC_MESSAGES
+
+# 번역 파일 확인
+ls -la
+# django.po (번역 소스)
+# django.mo (컴파일된 파일)
+```
+
+### 7.2 번역 파일 컴파일
+
+```bash
+# netbox/netbox 디렉토리로 이동
+cd ~/Documents/netbox/netbox
+
+# 가상환경이 활성화되어 있는지 확인
+source ../venv/bin/activate
+
+# 한국어 번역 컴파일
+python3 manage.py compilemessages -l ko
+
+# 성공 메시지:
+# processing file django.po in .../translations/ko/LC_MESSAGES
+# compiling message catalogs for ko
+```
+
+### 7.3 개발 서버 재시작
+
+```bash
+# 기존 서버 중지 (Ctrl+C)
+# 서버 재시작
+python3 manage.py runserver 0.0.0.0:8000
+```
+
+### 7.4 브라우저에서 한국어로 변경
+
+1. **NetBox에 로그인**: `http://localhost:8000`
+2. **오른쪽 상단 사용자 아이콘 클릭** → **Preferences** 선택
+3. **User Interface 섹션**:
+   - **Language**: `Korean (한국어)` 선택
+4. **Update 버튼 클릭**
+5. **페이지 새로고침 (F5)**
+
+**결과**: NetBox 인터페이스가 한국어로 표시됩니다! 🎉
+
+### 7.5 한국어 번역 상태 확인
+
+```bash
+# 번역되지 않은 항목 개수 확인
+cd ~/Documents/netbox/netbox/translations/ko/LC_MESSAGES
+grep -c 'msgstr ""' django.po
+
+# 전체 번역 항목 개수
+grep -c 'msgid' django.po
+```
+
+### 7.6 번역 업데이트 (선택사항)
+
+NetBox가 업데이트되면 새로운 번역 문자열이 추가될 수 있습니다:
+
+```bash
+# 새로운 번역 문자열 추출 및 병합
+cd ~/Documents/netbox/netbox
+python3 manage.py makemessages -l ko -i "project-static/*"
+
+# 번역 파일 편집 (선택사항)
+vim translations/ko/LC_MESSAGES/django.po
+
+# 재컴파일
+python3 manage.py compilemessages -l ko
+
+# 서버 재시작
+python3 manage.py runserver
+```
 
 ---
 
@@ -1038,11 +1124,73 @@ NetBox는 매우 강력한 도구이며, 이 가이드는 시작점에 불과합
 
 ---
 
-**문서 작성일**: 2025-10-22
+## Linux (Ubuntu/Debian) 설치 간단 가이드
+
+macOS 대신 Linux 환경에서 설치하려면:
+
+### 필수 패키지 설치
+
+```bash
+# 시스템 업데이트
+sudo apt update && sudo apt upgrade -y
+
+# Python 및 필수 도구
+sudo apt install -y python3 python3-pip python3-venv python3-dev git
+
+# PostgreSQL
+sudo apt install -y postgresql postgresql-contrib libpq-dev
+
+# Redis
+sudo apt install -y redis-server
+
+# 기타 시스템 패키지
+sudo apt install -y build-essential libssl-dev libffi-dev
+```
+
+### PostgreSQL 설정
+
+```bash
+# PostgreSQL 서비스 시작
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+
+# NetBox 데이터베이스 생성
+sudo -u postgres psql
+```
+
+```sql
+CREATE DATABASE netbox;
+CREATE USER netbox WITH PASSWORD 'netbox123';
+ALTER DATABASE netbox OWNER TO netbox;
+GRANT ALL PRIVILEGES ON DATABASE netbox TO netbox;
+\q
+```
+
+### Redis 설정
+
+```bash
+# Redis 서비스 시작
+sudo systemctl start redis-server
+sudo systemctl enable redis-server
+
+# 확인
+redis-cli ping  # 응답: PONG
+```
+
+이후 **3단계: NetBox 설치**부터는 macOS 가이드와 동일하게 진행하면 됩니다.
+
+---
+
+**문서 작성일**: 2024-11-16
 **NetBox 버전**: 4.4.4
-**작성자**: Claude Code
+**작성자**: NetBox Korean Community
 
 질문이나 문제가 있다면 NetBox 커뮤니티나 GitHub Issues를 활용하세요!
+
+**관련 문서**:
+- [한국어 번역 가이드](../netbox/translations/ko/README.md)
+- [공식 설치 문서](https://docs.netbox.dev/en/stable/installation/)
+- [한국어 번역 용어 사전](../netbox/translations/ko/TERMINOLOGY.md)
 
 
 
