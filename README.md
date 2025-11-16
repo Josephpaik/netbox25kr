@@ -83,6 +83,7 @@ NetBox automatically logs the creation, modification, and deletion of all manage
 
 * Just want to explore? Check out [our public demo](https://demo.netbox.dev/) right now!
 * The [official documentation](https://docs.netbox.dev) offers a comprehensive introduction.
+* **한국어 사용자**: [한글 빠른 시작 가이드](docs/QUICKSTART_KR.md) | [상세 설치 가이드](docs/NetBox%20macOS%20설치%20및%20사용%20가이드%20(한글).md)
 * Check out [our wiki](https://github.com/netbox-community/netbox/wiki/Community-Contributions) for even more projects to get the most out of NetBox!
 
 ## Get Involved
