@@ -189,7 +189,7 @@ cp netbox/configuration_example.py netbox/configuration.py
 python3 generate_secret_key.py
 
 # 출력된 키를 복사해둡니다 (예시):
-# k9m@3n!8$p2v&q7w*e5r4t6y8u9i0o1p2a3s5d6f7g8h9j0k1l
+# LX=UhyrVjhBMZprNtpMp+hgSM(D64lc1(J$YBV%iGMqtt*gPU)
 ```
 
 ### 4.3 설정 파일 편집
@@ -219,7 +219,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'netbox',
         'USER': 'netbox',
-        'PASSWORD': 'netbox123',  # 2.2단계에서 설정한 비밀번호
+        'PASSWORD': 'netbox1234!',  # 2.2단계에서 설정한 비밀번호
         'HOST': 'localhost',
         'PORT': '',
         'CONN_MAX_AGE': 300,
@@ -230,7 +230,7 @@ DATABASES = {
 # 변경사항 없음 (이미 localhost:6379로 설정되어 있음)
 
 # 4. SECRET_KEY 설정 (약 69번째 줄)
-SECRET_KEY = 'k9m@3n!8$p2v&q7w*e5r4t6y8u9i0o1p2a3s5d6f7g8h9j0k1l'  # 4.2단계에서 생성한 키
+SECRET_KEY = 'LX=UhyrVjhBMZprNtpMp+hgSM(D64lc1(J$YBV%iGMqtt*gPU)'  # 4.2단계에서 생성한 키
 
 # 5. DEBUG 모드 활성화 (약 119번째 줄) - 개발/테스트용
 DEBUG = True
