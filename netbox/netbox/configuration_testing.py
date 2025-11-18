@@ -3,16 +3,18 @@
 #  only. It is not intended for production use.                   #
 ###################################################################
 
+import os 
+
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '::1']
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'netbox',
-        'USER': 'netbox',
-        'PASSWORD': 'netbox1234!',  # 2.2단계에서 설정한 비밀번호
-        'HOST': 'localhost',
-        'PORT': '',
+        'NAME': os.environ.get('DB_NAME', 'netbox'),
+        'USER': os.environ.get('DB_USER', 'netbox'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'netbox1234!'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', ''),
         'CONN_MAX_AGE': 300,
     }
 }
