@@ -68,15 +68,21 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Wait for Postgres 
-      env: 
-        PGPASSWORD: ${{ secrets.NETBOX_DB_PASSWORD }} 
-        run: |
-          for i in {1..30}; 
-              do if psql -h localhost -U netbox -d netbox -c '\l' >/dev/null 2>&1;
-                  then echo "Postgres ready" break
-                fi 
-                sleep 1 done
+    - name: Wait for Postgres
+      env:
+        PGPASSWORD: ${{ secrets.NETBOX_DB_PASSWORD }}
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y postgresql-client
+
+        for i in {1..30}; do
+          if pg_isready -h localhost -p 5432 -U netbox >/dev/null 2>&1; then
+            echo "Postgres ready"
+            exit 0
+          fi
+          sleep 1
+        done
+        echo "Postgres did not become ready" && exit 1
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
