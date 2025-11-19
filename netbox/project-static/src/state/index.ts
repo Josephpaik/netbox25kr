@@ -13,6 +13,12 @@ interface StateOptions {
    * Use a static localStorage key instead of automatically generating one.
    */
   key?: string;
+
+  /**
+   * Optional encryption key for encrypting/decrypting state data.
+   * If omitted, a built-in default key will be used.
+   */
+  encryptionKey?: string;
 }
 
 /**
@@ -52,6 +58,10 @@ export class StateManager<T extends Dict, K extends keyof T = keyof T> {
    * localStorage key for this instance.
    */
   private key: string = '';
+  /**
+   * Encryption key used for localStorage encryption.
+   */
+  private encryptionKey: string = '';
 
   constructor(raw: T, options: StateOptions) {
     this.options = options;
@@ -61,6 +71,14 @@ export class StateManager<T extends Dict, K extends keyof T = keyof T> {
       this.key = this.options.key;
     } else {
       this.key = this.generateStateKey(raw);
+    }
+
+    // Use provided encryption key or default to a built-in value.
+    if (typeof this.options.encryptionKey === 'string' && this.options.encryptionKey.length > 0) {
+      this.encryptionKey = this.options.encryptionKey;
+    } else {
+      // WARNING: In production, use a unique per-user key that's never checked-in to source control.
+      this.encryptionKey = 'netbox-encryption-default-key-please-change';
     }
 
     if (this.options.persist) {
@@ -76,6 +94,76 @@ export class StateManager<T extends Dict, K extends keyof T = keyof T> {
     if (this.options.persist) {
       this.save();
     }
+  }
+
+  /**
+   * Encrypt a string using AES-GCM and a provided key.
+   */
+  private async encrypt(plainText: string): Promise<string> {
+    // Convert the password to a key.
+    const enc = new TextEncoder();
+    const password = enc.encode(this.encryptionKey);
+    const salt = window.crypto.getRandomValues(new Uint8Array(16));
+    const keyMaterial = await window.crypto.subtle.importKey(
+      "raw", password, "PBKDF2", false, ["deriveKey"]
+    );
+    const key = await window.crypto.subtle.deriveKey(
+      {
+        "name": "PBKDF2",
+        salt: salt,
+        iterations: 100000,
+        hash: "SHA-256"
+      },
+      keyMaterial,
+      { "name": "AES-GCM", "length": 256 },
+      false,
+      ["encrypt"]
+    );
+    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+    const encrypted = await window.crypto.subtle.encrypt(
+      { name: "AES-GCM", iv: iv },
+      key,
+      enc.encode(plainText)
+    );
+    // Concatenate salt, iv, and ciphertext for storage
+    const buffer = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+    buffer.set(salt, 0);
+    buffer.set(iv, salt.length);
+    buffer.set(new Uint8Array(encrypted), salt.length + iv.length);
+    return window.btoa(String.fromCharCode(...buffer));
+  }
+
+  /**
+   * Decrypt a string using AES-GCM and a provided key.
+   */
+  private async decrypt(encrypted: string): Promise<string> {
+    const buffer = Uint8Array.from(atob(encrypted), c => c.charCodeAt(0));
+    const salt = buffer.slice(0, 16);
+    const iv = buffer.slice(16, 28);
+    const ciphertext = buffer.slice(28);
+    const enc = new TextEncoder();
+    const password = enc.encode(this.encryptionKey);
+    const keyMaterial = await window.crypto.subtle.importKey(
+      "raw", password, "PBKDF2", false, ["deriveKey"]
+    );
+    const key = await window.crypto.subtle.deriveKey(
+      {
+        "name": "PBKDF2",
+        salt: salt,
+        iterations: 100000,
+        hash: "SHA-256"
+      },
+      keyMaterial,
+      { "name": "AES-GCM", "length": 256 },
+      false,
+      ["decrypt"]
+    );
+    const decrypted = await window.crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: iv },
+      key,
+      ciphertext
+    );
+    return new TextDecoder().decode(decrypted);
   }
 
   /**
@@ -135,9 +223,10 @@ export class StateManager<T extends Dict, K extends keyof T = keyof T> {
   /**
    * Serialize and save the current state to localStorage.
    */
-  private save(): void {
+  private async save(): Promise<void> {
     const value = JSON.stringify(this.proxy);
-    localStorage.setItem(this.key, value);
+    const encrypted = await this.encrypt(value);
+    localStorage.setItem(this.key, encrypted);
   }
 
   /**
@@ -145,11 +234,17 @@ export class StateManager<T extends Dict, K extends keyof T = keyof T> {
    *
    * @returns Parsed state object.
    */
-  private retrieve(): T | null {
+  private async retrieve(): Promise<T | null> {
     const raw = localStorage.getItem(this.key);
     if (raw !== null) {
-      const data = JSON.parse(raw) as T;
-      return data;
+      try {
+        const decrypted = await this.decrypt(raw);
+        const data = JSON.parse(decrypted) as T;
+        return data;
+      } catch (e) {
+        // fall back to null if decryption fails
+        return null;
+      }
     }
     return null;
   }
