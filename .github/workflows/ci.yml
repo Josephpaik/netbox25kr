@@ -29,6 +29,14 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NETBOX_CONFIGURATION: netbox.configuration_testing
+      DB_NAME: netbox
+      DB_USER: netbox
+      DB_PASSWORD: ${{ secrets.NETBOX_DB_PASSWORD }} 
+      DB_HOST: localhost 
+      DB_PORT: 5432 
+      PGUSER: netbox 
+      PGPASSWORD: ${{ secrets.NETBOX_DB_PASSWORD }}
+      
     strategy:
       matrix:
         python-version: ['3.10', '3.11', '3.12']
@@ -42,14 +50,14 @@ jobs:
         image: postgres
         env:
           POSTGRES_USER: netbox
-          POSTGRES_PASSWORD: netbox
+          POSTGRES_PASSWORD: ${{ secrets.NETBOX_DB_PASSWORD }}
         options: >-
-          --health-cmd pg_isready
+          --health-cmd="pg_isready -U netbox -d netbox"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 5432:5432
+       # ports:
+       #   - 5432:5432
 
     steps:
     - name: Check out repo
@@ -59,6 +67,24 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+
+    - name: Wait for Postgres (pg_isready)
+      env:
+        PGPASSWORD: ${{ secrets.NETBOX_DB_PASSWORD }}
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y postgresql-client
+
+        # 최대 60회, 2초 간격 => 최대 120초 대기
+        for i in {1..60}; do
+          if pg_isready -h localhost -p 5432 -U netbox >/dev/null 2>&1; then
+            echo "Postgres ready"
+            exit 0
+          fi
+          sleep 2
+        done
+        echo "Postgres did not become ready" >&2
+        exit 1
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4

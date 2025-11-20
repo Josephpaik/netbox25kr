@@ -3,15 +3,18 @@
 #  only. It is not intended for production use.                   #
 ###################################################################
 
-ALLOWED_HOSTS = ['*']
+import os 
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '::1']
 
 DATABASES = {
     'default': {
-        'NAME': 'netbox',
-        'USER': 'netbox',
-        'PASSWORD': 'netbox',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME', 'netbox'),
+        'USER': os.environ.get('DB_USER', 'netbox'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'netbox1234!'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', ''),
         'CONN_MAX_AGE': 300,
     }
 }
@@ -39,8 +42,8 @@ REDIS = {
     }
 }
 
-SECRET_KEY = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-
+SECRET_KEY = 'LX=UhyrVjhBMZprNtpMp+hgSM(D64lc1(J$YBV%iGMqtt*gPU)YZ0123456789'
+                          
 DEFAULT_PERMISSIONS = {}
 
 ALLOW_TOKEN_RETRIEVAL = True
@@ -49,3 +52,8 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': True
 }
+
+DEBUG = True
+
+TIME_ZONE = 'Asia/Seoul'
+
