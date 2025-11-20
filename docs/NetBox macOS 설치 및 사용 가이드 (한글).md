@@ -1,5 +1,5 @@
 # NetBox 설치 및 사용 가이드 (한글)
-INSTALLATION_GUIDE_KR.md  2024.11.16
+INSTALLATION_GUIDE_KR.md  2025.11.16
 
 > **참고**: 이 가이드는 macOS 및 Linux(Ubuntu/Debian) 환경에서 NetBox를 설치하는 방법을 안내합니다.
 ## 목차
@@ -101,7 +101,7 @@ psql postgres
 CREATE DATABASE netbox;
 
 -- NetBox용 사용자 생성 (⚠️ 보안: 실제 환경에서는 강력한 비밀번호 사용 필수!)
-CREATE USER netbox WITH PASSWORD 'NetBox_DB_2024!';  <- 기존 DB사용자정보: netbox / Netbox25&
+CREATE USER netbox WITH PASSWORD 'netbox1234!';  
 
 -- 권한 부여
 ALTER DATABASE netbox OWNER TO netbox;
@@ -112,7 +112,7 @@ GRANT ALL PRIVILEGES ON DATABASE netbox TO netbox;
 ```
 
 > **⚠️ 보안 주의사항**:
-> - `NetBox_DB_2024!`는 **데이터베이스 연결용 비밀번호**입니다
+> - `netbox1234!`는 **데이터베이스 연결용 비밀번호**입니다
 > - 실제 운영 환경에서는 더 복잡한 비밀번호를 사용하세요
 > - 이 비밀번호는 `configuration.py` 파일에 저장됩니다 (웹 로그인 비밀번호와 다름)
 
@@ -165,13 +165,13 @@ source venv/bin/activate
 
 ```bash
 # pip 업그레이드
-pip install --upgrade pip
+pip3 install --upgrade pip
 
 # NetBox 의존성 설치
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 # 설치 확인 (5-10분 소요)
-pip list | grep Django
+pip3 list | grep Django
 # Django가 목록에 나타나면 성공
 ```
 
@@ -195,7 +195,7 @@ cp netbox/configuration_example.py netbox/configuration.py
 # SECRET_KEY 생성 스크립트 실행
 python3 generate_secret_key.py
 
-# 출력된 키를 복사해둡니다 (예시):
+# 출력된 키를 복사해둡니다 (아래 키 사용):
 # k9m@3n!8$p2v&q7w*e5r4t6y8u9i0o1p2a3s5d6f7g8h9j0k1l
 ```
 
@@ -226,7 +226,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'netbox',
         'USER': 'netbox',
-        'PASSWORD': 'NetBox_DB_2024!',  # 2.2단계에서 설정한 데이터베이스 비밀번호
+        'PASSWORD': 'netbox1234!',  # 2.2단계에서 설정한 비밀번호
         'HOST': 'localhost',
         'PORT': '',
         'CONN_MAX_AGE': 300,
@@ -284,14 +284,14 @@ python3 manage.py createsuperuser
 
 # 프롬프트에 따라 입력:
 # Username: admin
-# Email address: admin@example.com
-# Password: Admin2024!Pass  (입력 시 화면에 표시되지 않음 - 10자 이상)
-# Password (again): Admin2024!Pass
+# Email address: wk.paik@somansa.com
+# Password: netbox1234!  (입력 시 화면에 표시되지 않음 - 10자 이상)
+# Password (again): netbox1234!
 # Superuser created successfully.
 ```
 
 > **⚠️ 보안 주의사항**:
-> - `Admin2024!Pass`는 **웹 로그인용 비밀번호**입니다 (데이터베이스 비밀번호와 다름)
+> - `netbox1234!`는 **웹 로그인용 비밀번호**입니다 (데이터베이스 비밀번호와 다름)
 > - 최소 10자 이상, 영문 대소문자, 숫자, 특수문자 조합 권장
 > - 실제 운영 환경에서는 더 복잡하고 추측하기 어려운 비밀번호를 사용하세요
 > - 비밀번호는 Django의 해시 알고리즘으로 암호화되어 데이터베이스에 저장됩니다
@@ -446,12 +446,12 @@ python3 manage.py runserver
 
 1. **URL**: `http://localhost:8000`
 2. **Username**: `admin` (5.2단계에서 생성한 계정)
-3. **Password**: `Admin2024!Pass` (5.2단계에서 설정한 웹 로그인 비밀번호)
+3. **Password**: `netbox1234!` 
 4. **"Log In" 버튼 클릭**
 
 로그인 후 NetBox 대시보드가 나타납니다.
 
-> **참고**: 데이터베이스 비밀번호(`NetBox_DB_2024!`)가 아닌 웹 로그인 비밀번호를 사용해야 합니다.
+> **참고**: 데이터베이스 비밀번호('netbox1234!`)가 아닌 웹 로그인 비밀번호를 사용해야 합니다.
 
 ---
 
@@ -464,8 +464,8 @@ NetBox에서 모든 장비는 특정 사이트에 속합니다. 먼저 사이트
 1. **상단 메뉴**: `Organization` → `Sites` 클릭
 2. **오른쪽 상단**: `+ Add` 버튼 클릭
 3. **정보 입력**:
-   - **Name**: `Seoul DC1` (서울 데이터센터)
-   - **Slug**: `seoul-dc1` (자동 생성됨)
+   - **Name**: `Pangyo DC1` (서울 데이터센터)
+   - **Slug**: `pangyo-dc1` (자동 생성됨)
    - **Status**: `Active` 선택
    - **Region**: (선택사항) - 일단 비워둠
    - **Description**: `서울 본사 데이터센터`
@@ -556,7 +556,7 @@ NetBox에서 모든 장비는 특정 사이트에 속합니다. 먼저 사이트
 1. **상단 메뉴**: `Devices` → `Racks` 클릭
 2. **`+ Add` 버튼 클릭**
 3. **정보 입력**:
-   - **Site**: `Seoul DC1` 선택
+   - **Site**: `Pangyo DC1` 선택
    - **Name**: `Rack-A01`
    - **Status**: `Active`
    - **Width**: `19 inches` 선택
@@ -577,10 +577,10 @@ NetBox에서 모든 장비는 특정 사이트에 속합니다. 먼저 사이트
 1. **상단 메뉴**: `Devices` → `Devices` 클릭
 2. **`+ Add` 버튼 클릭**
 3. **정보 입력**:
-   - **Name**: `seoul-core-rt01`
+   - **Name**: `pangyo-core-rt01`
    - **Device Role**: `Core Router` 선택
    - **Device Type**: `Cisco ASR 1000` 선택
-   - **Site**: `Seoul DC1` 선택
+   - **Site**: `pangyo DC1` 선택
    - **Rack**: `Rack-A01` 선택
    - **Position**: `40` (랙의 40U 위치)
    - **Face**: `Front` 선택
@@ -591,9 +591,9 @@ NetBox에서 모든 장비는 특정 사이트에 속합니다. 먼저 사이트
 **결과**: 장비가 생성되고 상세 페이지가 표시됩니다!
 
 #### 추가 장비 생성:
-- `seoul-core-rt02` (백업 코어 라우터)
-- `seoul-dist-sw01` (분산 스위치)
-- `seoul-access-sw01` (액세스 스위치)
+- `pangyo-core-rt02` (백업 코어 라우터)
+- `pangyo-dist-sw01` (분산 스위치)
+- `pangyo-access-sw01` (액세스 스위치)
 
 ---
 
@@ -603,7 +603,7 @@ NetBox에서 모든 장비는 특정 사이트에 속합니다. 먼저 사이트
 
 #### 단계:
 
-1. **Devices 목록**에서 `seoul-core-rt01` 클릭
+1. **Devices 목록**에서 `pangyo-core-rt01` 클릭
 2. **상단 탭**: `Interfaces` 클릭
 3. **`+ Add Interface` 버튼 클릭**
 4. **정보 입력**:
@@ -631,7 +631,7 @@ NetBox에서 모든 장비는 특정 사이트에 속합니다. 먼저 사이트
 3. **정보 입력**:
    - **Prefix**: `10.0.0.0/24`
    - **Status**: `Active`
-   - **Site**: `Seoul DC1` 선택
+   - **Site**: `pangyo DC1` 선택
    - **Description**: `Core Network Subnet`
 4. **`Create` 버튼 클릭**
 
@@ -642,7 +642,7 @@ NetBox에서 모든 장비는 특정 사이트에 속합니다. 먼저 사이트
 3. **정보 입력**:
    - **IP Address**: `10.0.0.1/24`
    - **Status**: `Active`
-   - **DNS Name**: `seoul-core-rt01.example.com`
+   - **DNS Name**: `pangyo-core-rt01.example.com`
    - **Description**: `Core Router Primary IP`
 4. **`Create` 버튼 클릭**
 
@@ -651,11 +651,11 @@ NetBox에서 모든 장비는 특정 사이트에 속합니다. 먼저 사이트
 1. 방금 생성한 IP 주소 `10.0.0.1/24` 클릭
 2. **Edit** 버튼 클릭
 3. **Assigned Object**:
-   - **Device**: `seoul-core-rt01` 선택
+   - **Device**: `pangyo-core-rt01` 선택
    - **Interface**: `GigabitEthernet0/0/0` 선택
 4. **`Save` 버튼 클릭**
 
-5. 다시 **Devices** → `seoul-core-rt01` 페이지로 이동
+5. 다시 **Devices** → `pangyo-core-rt01` 페이지로 이동
 6. **Edit** 버튼 클릭
 7. **Primary IPv4**: `10.0.0.1/24` 선택
 8. **`Save` 버튼 클릭**
@@ -671,7 +671,7 @@ NetBox에서 모든 장비는 특정 사이트에 속합니다. 먼저 사이트
 1. **상단 메뉴**: `IPAM` → `VLANs` 클릭
 2. **`+ Add` 버튼 클릭**
 3. **정보 입력**:
-   - **Site**: `Seoul DC1` 선택
+   - **Site**: `Pangyo DC1` 선택
    - **VLAN ID**: `100`
    - **Name**: `Management`
    - **Status**: `Active`
@@ -690,16 +690,16 @@ NetBox에서 모든 장비는 특정 사이트에 속합니다. 먼저 사이트
 
 #### 준비:
 먼저 두 번째 장비에도 인터페이스가 있어야 합니다.
-1. `seoul-dist-sw01` 장비 생성 (아직 안했다면)
+1. `pangyo-dist-sw01` 장비 생성 (아직 안했다면)
 2. 해당 장비에 `GigabitEthernet1/0/1` 인터페이스 추가
 
 #### 케이블 연결:
 
-1. **Devices** → `seoul-core-rt01` → **Interfaces** 탭
+1. **Devices** → `pangyo-core-rt01` → **Interfaces** 탭
 2. `GigabitEthernet0/0/0` 인터페이스 클릭
 3. **Connect** 버튼 (케이블 아이콘) 클릭
 4. **Cable 연결 정보**:
-   - **Side B Device**: `seoul-dist-sw01` 선택
+   - **Side B Device**: `pangyo-dist-sw01` 선택
    - **Side B Interface**: `GigabitEthernet1/0/1` 선택
    - **Cable Type**: `Cat6` 선택
    - **Cable Length**: `5` (미터)
@@ -737,7 +737,7 @@ NetBox에서 모든 장비는 특정 사이트에 속합니다. 먼저 사이트
 
 #### 태그를 장비에 적용:
 
-1. **Devices** → `seoul-core-rt01` → **Edit**
+1. **Devices** → `pangyo-core-rt01` → **Edit**
 2. **Tags** 필드에서 `Production` 선택
 3. **`Save` 버튼 클릭**
 
@@ -747,14 +747,14 @@ NetBox에서 모든 장비는 특정 사이트에 속합니다. 먼저 사이트
 
 #### 전역 검색:
 
-1. **상단 검색 바**에 `seoul` 입력
+1. **상단 검색 바**에 `pangyo` 입력
 2. 관련된 모든 객체(장비, 사이트 등)가 검색됩니다
 
 #### 고급 필터:
 
 1. **Devices** → **Devices** 목록
 2. **오른쪽 패널** - **Filters** 사용:
-   - **Site**: `Seoul DC1` 선택
+   - **Site**: `Pangyo DC1` 선택
    - **Status**: `Active` 선택
    - **Role**: `Core Router` 선택
 3. **Apply** 클릭
@@ -787,7 +787,7 @@ curl -H "Authorization: Token abc123def456..." \
 
 # 특정 장비 조회
 curl -H "Authorization: Token abc123def456..." \
-     http://localhost:8000/api/dcim/devices/?name=seoul-core-rt01
+     http://localhost:8000/api/dcim/devices/?name=pangyo-core-rt01
 
 # 새 사이트 생성
 curl -X POST \
@@ -835,7 +835,7 @@ query {
 
 ```graphql
 query {
-  device_list(filters: {site: "seoul-dc1"}) {
+  device_list(filters: {site: "pangyo-dc1"}) {
     id
     name
     device_type {
@@ -898,9 +898,9 @@ query {
 
 ```csv
 name,device_role,device_type,site,status
-seoul-access-sw02,access-switch,catalyst-9300-48p,seoul-dc1,active
-seoul-access-sw03,access-switch,catalyst-9300-48p,seoul-dc1,active
-seoul-access-sw04,access-switch,catalyst-9300-48p,seoul-dc1,active
+pangyo-access-sw02,access-switch,catalyst-9300-48p,pangyo-dc1,active
+pangyo-access-sw03,access-switch,catalyst-9300-48p,pangyo-dc1,active
+pangyo-access-sw04,access-switch,catalyst-9300-48p,pangyo-dc1,active
 ```
 
 4. **Submit** 클릭
