@@ -33,10 +33,12 @@ jobs:
       DB_USER: netbox
       DB_PASSWORD: ${{ secrets.NETBOX_DB_PASSWORD }} 
       DB_HOST: localhost 
-      DB_PORT: 5432 
+      DB_PORT: 5432
       PGUSER: netbox 
+      POSTGRES_USER: ${{ env.POSTGRES_USER || 'netbox' }}
       PGPASSWORD: ${{ secrets.NETBOX_DB_PASSWORD }}
-      
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432   
     strategy:
       matrix:
         python-version: ['3.10', '3.11', '3.12']
@@ -56,9 +58,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-       # ports:
-       #   - 5432:5432
-
     steps:
     - name: Check out repo
       uses: actions/checkout@v4
@@ -68,23 +67,60 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Wait for Postgres (pg_isready)
-      env:
-        PGPASSWORD: ${{ secrets.NETBOX_DB_PASSWORD }}
+    - name: Wait for Postgres to become ready (pg_isready)
       run: |
-        sudo apt-get update
-        sudo apt-get install -y postgresql-client
+        # ensure pg_isready exists (some runners may already have it)
+        if ! command -v pg_isready >/dev/null 2>&1; then
+          sudo apt-get update -y
+          sudo apt-get install -y postgresql-client
+        fi
 
-        # 최대 60회, 2초 간격 => 최대 120초 대기
-        for i in {1..60}; do
-          if pg_isready -h localhost -p 5432 -U netbox >/dev/null 2>&1; then
+        # 최대 150회, 2초 간격 = 최대 300초(5분) 대기
+        for i in {1..150}; do
+          if pg_isready -h "${POSTGRES_HOST}" -p "${POSTGRES_PORT}" -U "${POSTGRES_USER}" > /dev/null 2>&1; then
             echo "Postgres ready"
             exit 0
           fi
+          echo "Waiting for Postgres... ($i/150)"
           sleep 2
         done
-        echo "Postgres did not become ready" >&2
+
+        echo "Postgres did not become ready in time" >&2
+
+        # debug: show containers if docker CLI available
+        if command -v docker >/dev/null 2>&1; then
+          docker ps -a || true
+
+          # try to find container by name or by postgres image ancestor
+          CONTAINER_ID=$(docker ps -qf "name=postgres" || echo "")
+          if [ -z "$CONTAINER_ID" ]; then
+            CONTAINER_ID=$(docker ps -qf "ancestor=postgres" || echo "")
+          fi
+          if [ -n "$CONTAINER_ID" ]; then
+            echo "=== Postgres container logs ==="
+            docker logs "$CONTAINER_ID" || true
+          else
+            echo "No postgres container found by name or ancestor filter"
+          fi
+        else
+          echo "docker not available on runner; cannot dump container logs"
+        fi
+
         exit 1
+
+    - name: Print Postgres logs for debugging
+      if: failure()
+      run: |
+        echo "=== docker ps -a ==="
+        command -v docker >/dev/null 2>&1 && docker ps -a || echo "docker not available"
+        echo "=== Postgres logs (if container found) ==="
+        CONTAINER_ID=$(command -v docker >/dev/null 2>&1 && (docker ps -qf "name=postgres" || docker ps -qf "ancestor=postgres") || echo "")
+        if [ -n "$CONTAINER_ID" ]; then
+          docker logs "$CONTAINER_ID" || true
+        else
+          echo "No postgres container found"
+        fi
+      continue-on-error: true
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
