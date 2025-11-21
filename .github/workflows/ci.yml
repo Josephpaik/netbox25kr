@@ -35,7 +35,7 @@ jobs:
       DB_HOST: localhost 
       DB_PORT: 5432
       PGUSER: netbox 
-      POSTGRES_USER: ${{ env.POSTGRES_USER || 'netbox' }}
+      POSTGRES_USER: netbox
       PGPASSWORD: ${{ secrets.NETBOX_DB_PASSWORD }}
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432   
