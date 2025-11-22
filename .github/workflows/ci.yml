@@ -59,13 +59,40 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-          ports:
+        ports:
           - 5432:5432
 
     steps:
     - name: Check out repo
       uses: actions/checkout@v4
+    
+    # 로컬component-detection파일이 액션/툴을 가리지않게 사전(Pre) 스텝을 체크아웃 직후에 추가
+    - name: Prevent local component-detection from shadowing the tool 20251122
+      run: |
+        if [ -f ./component-detection ]; then
+          echo "Local ./component-detection found — moving to ./component-detection.bak to avoid shadowing."
+          mv ./component-detection ./component-detection.bak || { echo "mv failed, attempting rm"; rm -f ./component-detection || true; }
+          chmod -x ./component-detection.bak || true
+          echo "Moved to ./component-detection.bak:"
+          ls -la ./component-detection.bak || true
+        else
+          echo "No local ./component-detection file found."
+        fi
 
+        - name: Diagnostic: check for component-detection output (non-failing)
+          if: always()
+          run: |
+            if [ -f ./output.json ]; then
+              echo "output.json present (size=$(stat -c%s ./output.json) bytes)."
+              head -c 10240 ./output.json || true
+            else
+              echo "No output.json found. This is okay unless you expect component-detection to run in this workflow."
+              echo "Top-level files:"
+              ls -la . || true
+              test -f ./component-detection && echo "WARNING: ./component-detection exists (size=$(stat -c%s ./component-detection) bytes)" || true
+              test -f ./component-detection.bak && echo "Found ./component-detection.bak (moved earlier)." || true
+            fi
+    
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
