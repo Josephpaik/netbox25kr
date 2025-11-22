@@ -79,19 +79,19 @@ jobs:
           echo "No local ./component-detection file found."
         fi
 
-        - name: Diagnostic: check for component-detection output (non-failing)
-          if: always()
-          run: |
-            if [ -f ./output.json ]; then
-              echo "output.json present (size=$(stat -c%s ./output.json) bytes)."
-              head -c 10240 ./output.json || true
-            else
-              echo "No output.json found. This is okay unless you expect component-detection to run in this workflow."
-              echo "Top-level files:"
-              ls -la . || true
-              test -f ./component-detection && echo "WARNING: ./component-detection exists (size=$(stat -c%s ./component-detection) bytes)" || true
-              test -f ./component-detection.bak && echo "Found ./component-detection.bak (moved earlier)." || true
-            fi
+    - name: Diagnostic - check for component-detection output (non-failing)
+      if: always()
+      run: |
+        if [ -f ./output.json ]; then
+          echo "output.json present (size=$(stat -c%s ./output.json) bytes)."
+          head -c 10240 ./output.json || true
+        else
+          echo "No output.json found. This is okay unless you expect component-detection to run in this workflow."
+          echo "Top-level files:"
+          ls -la . || true
+          test -f ./component-detection && echo "WARNING: ./component-detection exists (size=$(stat -c%s ./component-detection) bytes)" || true
+          test -f ./component-detection.bak && echo "Found ./component-detection.bak (moved earlier)." || true
+        fi
     
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
