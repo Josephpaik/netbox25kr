@@ -64,7 +64,7 @@ jobs:
 
     steps:
     - name: Check out repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
     
     # 로컬component-detection파일이 액션/툴을 가리지않게 사전(Pre) 스텝을 체크아웃 직후에 추가
     - name: Prevent local component-detection from shadowing the tool 20251122
@@ -94,7 +94,7 @@ jobs:
         fi
     
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -127,7 +127,7 @@ jobs:
         done
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@34e114876b0b11c390a56381ad16ebd13914f8d5
       with:
         node-version: ${{ matrix.node-version }}
     
@@ -135,7 +135,7 @@ jobs:
       run: npm install -g yarn
     
     - name: Setup Node.js with Yarn Caching
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@34e114876b0b11c390a56381ad16ebd13914f8d5
       with:
         node-version: ${{ matrix.node-version }}
         cache: yarn
