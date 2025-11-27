@@ -16,7 +16,7 @@ jobs:
     if: github.repository == 'netbox-community/netbox'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@28ca1036281a5e5922ead5184a1bbf96e5fc984e
+      - uses: actions/stale@28ca1036281a5e5922ead5184a1bbf96e5fc984e  #V9
         with:
           # General parameters
           operations-per-run: 200
